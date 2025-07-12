@@ -1,36 +1,31 @@
-const { Pool } = require('pg');
-const dotenv = require('dotenv');
-const ENV = process.env.NODE_ENV || 'development';
+// This file is deprecated - using Sequelize instead
+// Keeping this file for backward compatibility but redirecting to Sequelize
 
-console.log('ENV:', ENV);
+const { sequelize } = require('../models');
 
-const dotenvResult = dotenv.config({
-  path: `${__dirname}/../../.env.${ENV}`, // Modify the path to point to the root of the app
-});
+// For backward compatibility with code that expects the pg Pool interface
+const mockPool = {
+  query: async (text, params) => {
+    try {
+      // Execute raw query using Sequelize
+      const [results] = await sequelize.query(text, {
+        replacements: params,
+        raw: true
+      });
+      return { rows: results };
+    } catch (error) {
+      console.error('Error executing query:', error);
+      throw error;
+    }
+  },
+  // Add other Pool methods as needed for compatibility
+  on: (event, callback) => {
+    // No-op for compatibility
+    return;
+  }
+};
 
-if (dotenvResult.error) {
-  console.error('Error loading .env file:', dotenvResult.error);
-}
+module.exports = mockPool;
 
-// console.log('Database:', process.env.DB_DATABASE);
-
-if (!process.env.DB_DATABASE) {
-  throw new Error('DB_DATABASE not set');
-}
-
-// Configure the Pool with the correct environment variable
-const pool = new Pool({
-  database: process.env.DB_DATABASE,
-  password: process.env.DB_PASSWORD,
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  // Add other configuration parameters as needed, such as user, password, host, port, etc.
-});
-
-pool.on('error', (err) => {
-  console.error('Error on idle client:', err.message);
-  process.exit(-1);
-});
-
-module.exports = pool;
+// Export sequelize instance for direct access if needed
+module.exports.sequelize = sequelize;

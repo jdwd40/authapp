@@ -2,8 +2,6 @@ const db = require('../connection');
 const userData = require('../../db/data/development/users');
 const format = require('pg-format');
 
-console.log(userData);
-
 const seed = async (userData) => {
     try {
         // Drop the table if it exists
@@ -47,13 +45,13 @@ const seed = async (userData) => {
         );
 
         const result = await db.query(insertUsersQueryStr);
-        console.log('Inserted users:', result.rows);
+       // console.log('Inserted users:', result.rows);
     } catch (err) {
         console.error('Error seeding database:', err);
     }
 };
 
 // Call the seed function with userData
-seed(userData);
+// seed(userData);
 
-module.exports = { seed };
+module.exports =  seed;
